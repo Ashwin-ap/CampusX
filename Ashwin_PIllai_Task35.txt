@@ -1,0 +1,66 @@
+Q1.
+SELECT Name from olympic 
+where year = 2008
+and Medal = 'Gold'
+and Height > (select avg(Height) from olympic where year = 2008);
+
+Q2.
+select name from olympic
+where sport = 'Basketball'
+and year =2016
+and medal IS NOT NULL
+and Weight < (select avg(Weight) from olympic
+where year = 2016
+and Medal IS NOT NULL);
+
+Q3.
+select DISTINCT(name)
+from olympic
+where medal IS NOT NULL
+and sport = 'Swimming'
+and year IN (2008, 2016);
+
+Q7.
+SELECT COUNT(claim) FROM insurance_data
+WHERE claim > (SELECT AVG(Claim) FROM insurance_data
+				WHERE smoker = 'Yes' AND
+				region = 'southeast' AND
+				children >= 1); 
+
+Q8.
+SELECT COUNT(claim) FROM insurance_data
+WHERE claim > (SELECT AVG(claim) FROM insurance_data
+				WHERE smoker = 'No' AND
+				bmi > (SELECT AVG(bmi) FROM insurance_data
+						WHERE children >= 1));
+
+
+Q9.
+SELECT COUNT(claim) FROM insurance_data
+WHERE claim > (SELECT AVG(claim) FROM insurance_data WHERE
+			   bmi > (SELECT AVG(bmi) FROM insurance_data
+					  WHERE children >= 1 AND
+                      diabetic = 'Yes' AND
+                      region = 'southwest'));
+
+
+Q10.
+SELECT bmi, children, AVG(claim) AS smoker_avg_claim, (
+    SELECT AVG(claim)
+    FROM insurance_data AS non_smoker
+    WHERE non_smoker.bmi = smoker.bmi
+    AND non_smoker.children = smoker.children
+    AND non_smoker.smoker = 'No'
+) AS non_smoker_avg_claim, AVG(claim) - (
+    SELECT AVG(claim)
+    FROM insurance_data AS non_smoker
+    WHERE non_smoker.bmi = smoker.bmi
+    AND non_smoker.children = smoker.children
+    AND non_smoker.smoker = 'No'
+) AS claim_diff
+FROM insurance_data AS smoker
+WHERE smoker.smoker = 'Yes'
+GROUP BY smoker.bmi, smoker.children
+having claim_diff is not null;
+
+
